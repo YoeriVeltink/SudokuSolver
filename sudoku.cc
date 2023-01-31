@@ -25,6 +25,7 @@ class spel{
     cell* minsteMogelijkheden();
     spel* ouder = nullptr;
     spel* kinderen[9] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
+    void ruimop();
     spel();
     spel(spel &t, int zetWaarde);
 };  
@@ -40,6 +41,17 @@ cell::cell(cell &t){
 
 spel::spel(){
 
+}
+
+void spel::ruimop(){
+    for(int i = 0; i<9; i++){
+        for(int j = 0; j<9; j++){
+            if(veld[i][j]!=nullptr){
+                delete veld[i][j];
+            }
+
+        }
+    }
 }
 
 spel::spel(spel &t, int zetWaarde){
@@ -67,15 +79,42 @@ spel::spel(spel &t, int zetWaarde){
     cout << "hier copy 3" << endl;
 
     if(opgelost()){
+        spel* hulp = this->ouder;
+        spel* vorig = this;
+        cout << "OPGELOST CHECLLA " << endl;
+        while(hulp!=nullptr){
+            vorig = hulp;
+            hulp = hulp->ouder;
+            for(int i = 0; i < 9; i++){
+                cout << "AAAAAAA" << (vorig->kinderen[i] == nullptr) << endl; 
+            }
+            vorig->ruimop();
+            delete vorig;
+        }
         cout << "klaar 2" << endl;
+        ruimop();
+        delete this;
         exit(0);
     }
 
     //anders...
 
     cell* branchpoint2 = minsteMogelijkheden();
-    if(branchpoint2 == nullptr)
+    if(branchpoint2 == nullptr){
+        for(int i = 0; i < 9; i++){
+            for(int j = 0; j < 9; j++){
+                if(veld[i][j]!=nullptr){
+                    cout << veld[i][j]->waarde;
+                    //cout << "DELET" << endl;
+                    //delete veld[i][j];
+                }
+
+
+            }
+        }
         return;
+    }
+
         
 
     cout << branchpoint2->i << " " << branchpoint2->j << endl;
@@ -84,11 +123,12 @@ spel::spel(spel &t, int zetWaarde){
 
     for(int k = 0; k< 9; k++){
     cout << "hier copy 5" << endl;
-
         if(branchpoint2->mogelijk[k]){
             cout << "NESTED KIND " << k+1 << endl;
             kinderen[k] = new spel(*this, k+1);
-
+            kinderen[k]->ouder = this;
+            kinderen[k]->ruimop();
+            delete kinderen[k];
         }
 
 
@@ -217,7 +257,7 @@ cell* spel::minsteMogelijkheden(){
 
 int main(){
     int init[9][9] = {
-        /*{0, 0, 8, 0, 0, 0, 0, 0, 0},
+        {0, 0, 8, 0, 0, 0, 0, 0, 0},
         {4, 9, 0, 0, 0, 5, 0, 0, 0},
         {1, 0, 7, 0, 3, 9, 0, 0, 2},
         {8, 2, 0, 0, 0, 1, 0, 0, 7},
@@ -225,8 +265,8 @@ int main(){
         {0, 0, 4, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 6, 0, 1, 0, 0},
         {3, 0, 9, 0, 7, 0, 8, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 7, 0}*/
-        {6, 9, 0, 2, 0, 0, 0, 5, 1},
+        {0, 0, 0, 0, 0, 0, 0, 7, 0}
+        /*{6, 9, 0, 2, 0, 0, 0, 5, 1},
         {0, 0, 0, 0, 0, 8, 3, 0, 4},
         {0, 8, 3, 9, 0, 1, 0, 0, 0},
         {5, 1, 0, 8, 0, 2, 0, 0, 7},
@@ -234,7 +274,7 @@ int main(){
         {0, 4, 2, 0, 0, 7, 0, 8, 0},
         {0, 2, 5, 1, 0, 6, 4, 3, 0},
         {0, 0, 4, 0, 8, 0, 0, 7, 0},
-        {7, 0, 0, 5, 0, 0, 6, 0, 0}
+        {7, 0, 0, 5, 0, 0, 6, 0, 0}*/
     };
 
     spel hoofdSpel;
@@ -266,9 +306,13 @@ int main(){
     cout << branchpoint->telMogelijkheden() << endl;
 
     for(int k = 0; k< 9; k++){
-        cout << "KIND " << k << endl;
-        if(branchpoint->mogelijk[k])
+        cout << "KIND " << k << endl;   
+        if(branchpoint->mogelijk[k]){
             hoofdSpel.kinderen[k] = new spel(hoofdSpel, k+1);
+            hoofdSpel.kinderen[k]->ouder=&hoofdSpel;
+            hoofdSpel.kinderen[k]->ruimop();
+            delete hoofdSpel.kinderen[k];
+        }
     }
 
     return 0;
