@@ -55,7 +55,7 @@ void spel::ruimop(){
 }
 
 spel::spel(spel &t, int zetWaarde){
-
+    ouder = &t;
     cout << "hier copy 1" << endl;
     for(int i =0; i < 9; i++){
         for(int j = 0; j < 9; j++){
@@ -85,16 +85,18 @@ spel::spel(spel &t, int zetWaarde){
         while(hulp!=nullptr){
             vorig = hulp;
             hulp = hulp->ouder;
-            for(int i = 0; i < 9; i++){
-                cout << "AAAAAAA" << (vorig->kinderen[i] == nullptr) << endl; 
-            }
+            if(vorig!=nullptr){
             vorig->ruimop();
+            if(hulp != nullptr)
             delete vorig;
+            }
+
         }
         cout << "klaar 2" << endl;
         ruimop();
         delete this;
-        exit(0);
+        exit(1);
+        return;
     }
 
     //anders...
@@ -313,6 +315,7 @@ int main(){
             hoofdSpel.kinderen[k]->ruimop();
             delete hoofdSpel.kinderen[k];
         }
+        cout << " terug " << endl;
     }
 
     return 0;
